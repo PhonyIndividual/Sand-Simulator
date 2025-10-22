@@ -1,0 +1,122 @@
+import pygame
+import time
+
+sandpos = [[], []]
+tempop = []
+speed = 0.01
+pause = False
+
+red = (255, 0, 0, 255)
+blank = (0, 0, 0, 255)
+
+def sandfall():
+    global sandpos
+    global tempop
+    global blank
+    global red
+
+    if pause == False:
+        if len(sandpos[1]) != 0:
+            for i in range(len(sandpos[0])):
+                if ((sandpos[1][i] + 1) <= 79):
+                    if screen.get_at((int(sandpos[0][i])*10, (int(sandpos[1][i]) + 1)*10)) == blank:
+                        pygame.draw.rect(screen, blank, ((int(sandpos[0][i]) * 10, int(sandpos[1][i]) * 10), (10, 10)))
+                        sandpos[1][i] += 1
+                        pygame.draw.rect(screen, red, ((int(sandpos[0][i]) * 10, int(sandpos[1][i]) * 10), (10, 10)))
+                    elif (int(sandpos[0][i]) - 1) >= 0 and screen.get_at(((int(sandpos[0][i]) - 1)*10, (int(sandpos[1][i]) + 1)*10)) == blank:
+                        pygame.draw.rect(screen, blank, ((int(sandpos[0][i]) * 10, int(sandpos[1][i]) * 10), (10, 10)))
+                        sandpos[1][i] += 1
+                        sandpos[0][i] -= 1
+                        pygame.draw.rect(screen, red, ((int(sandpos[0][i]) * 10, int(sandpos[1][i]) * 10), (10, 10)))
+                    elif (int(sandpos[0][i]) + 1) <= 79 and screen.get_at(((int(sandpos[0][i]) + 1)*10, (int(sandpos[1][i]) + 1)*10)) == blank:
+                        pygame.draw.rect(screen, blank, ((int(sandpos[0][i]) * 10, int(sandpos[1][i]) * 10), (10, 10)))
+                        sandpos[1][i] += 1
+                        sandpos[0][i] += 1
+                        pygame.draw.rect(screen, red, ((int(sandpos[0][i]) * 10, int(sandpos[1][i]) * 10), (10, 10)))
+                    else:
+                        tempop.append(i)
+                else:
+                    tempop.append(i)
+
+    if len(tempop) != 0:
+        for x in reversed(tempop):
+            sandpos[0].pop(x)
+            sandpos[1].pop(x)
+
+    tempop = []
+
+
+
+
+
+
+print("\nSUMMON SAND: LEFT CLICK")
+print("RESET: r")
+print("PAUSE: p")
+
+print("\nSPAM IF NEEDED:")
+print("TICK SPEED UP: w")
+print("TICK SPEED UP: s")
+
+
+pygame.init()
+
+screen = pygame.display.set_mode((800, 800))
+pygame.display.set_caption("Simulator")
+
+
+
+running = True
+
+
+while running:
+    for i in sandpos[0]:
+        pygame.draw.rect(screen, red, ((int(sandpos[0][-1]) * 10, int(sandpos[1][-1]) * 10), (10, 10)))
+        
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                screen = pygame.display.set_mode((800, 800))
+                speed = 0.01
+            elif event.key == pygame.K_w:
+                if speed > 0.000001:
+                    speed = speed / 2
+            elif event.key == pygame.K_s:
+                if speed < 1:
+                    speed = speed * 2
+            elif event.key == pygame.K_p:
+                pause = not pause
+
+        
+    mouse1, mouse2, mouse3 = pygame.mouse.get_pressed(num_buttons = 3)
+    
+    if mouse1 == True:
+        mouseX, mouseY = pygame.mouse.get_pos()
+
+        mouseX /= 10
+        mouseY /= 10
+
+        mouseX = int(mouseX)
+        mouseY = int(mouseY)
+
+        if mouseX >= 0 and mouseX <= 79 and mouseY >= 0 and mouseY <= 79:
+            if screen.get_at((mouseX * 10, mouseY * 10)) != (255, 0, 0, 255):
+
+                sandpos[0].append(mouseX)
+                sandpos[1].append(mouseY)
+
+                if pause == True:
+                    pygame.draw.rect(screen, red, ((int(sandpos[0][-1]) * 10, int(sandpos[1][-1]) * 10), (10, 10)))
+
+    if len(sandpos[1]) != 0:
+        sandfall()
+
+    pygame.display.flip()
+
+    time.sleep(speed)
+
+    pygame.event.pump()
+    
+pygame.quit()
